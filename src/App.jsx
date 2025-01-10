@@ -1,35 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { ChartJsLayout } from "./chartJsLayout.jsx";
+import { useEffect, useState } from "react";
+import useWebSocket, { ReadyState } from "react-use-websocket";
+import { baseUrl } from "./constants/baseUrl.js";
+import { CutArray } from "./helpers/cutArray.js";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [crypto, setCrypto] = useState([]);
+  const [newCrypto, setNewCrypto] = useState({});
+  const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
+    baseUrl,
+    {
+      share: false,
+      shouldReconnect: () => true,
+      heartbeat: {
+        timeout: 50000,
+      },
+    },
+  );
 
+  useEffect(() => {
+    const day = new Date(`December 17, 1995 03:24:00`);
+    if (lastJsonMessage) {
+      const lastMessage = {
+        price: lastJsonMessage.p,
+        name: lastJsonMessage.s,
+        date: day,
+      };
+      setCrypto((prevState) => CutArray([...prevState, lastMessage]));
+      setNewCrypto(lastMessage);
+    }
+  }, [lastJsonMessage]);
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      {crypto.length < 1 ? (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <p>Loading...</p>
+        </div>
+      ) : (
+        <>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <p>Currency: {newCrypto.name}</p>
+            <p>Last price: {Number.parseFloat(newCrypto.price)}</p>
+          </div>
+          <ChartJsLayout newCrypto={newCrypto} crypto={crypto} />
+        </>
+      )}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
