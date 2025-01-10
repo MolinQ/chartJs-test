@@ -12,7 +12,7 @@ export const useRealtimeInfo = () => {
   });
 
   useEffect(() => {
-    const day = new Date(`December 17, 1995 03:24:00`);
+    const day = new Date();
     if (lastJsonMessage) {
       const lastMessage = {
         price: lastJsonMessage.p,
