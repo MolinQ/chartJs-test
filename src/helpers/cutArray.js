@@ -1,6 +1,7 @@
+import { cryptoElementLimit } from "../constants/minCryptoElement.js";
+
 export const CutArray = (array) => {
-  const limit = 14;
-  if (array.length > limit) {
+  if (array.length > cryptoElementLimit) {
     array.shift();
   }
   return array;

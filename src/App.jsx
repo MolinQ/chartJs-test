@@ -1,38 +1,13 @@
 import { ChartJsLayout } from "./chartJsLayout.jsx";
-import { useEffect, useState } from "react";
-import useWebSocket, { ReadyState } from "react-use-websocket";
-import { baseUrl } from "./constants/baseUrl.js";
-import { CutArray } from "./helpers/cutArray.js";
+import { minCryptoElement } from "./constants/minCryptoElement.js";
+import { useRealtimeInfo } from "./helpers/hooks/useRealtimeInfo.js";
+import { elementAfterDot } from "./constants/price.js";
 
 function App() {
-  const [crypto, setCrypto] = useState([]);
-  const [newCrypto, setNewCrypto] = useState({});
-  const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
-    baseUrl,
-    {
-      share: false,
-      shouldReconnect: () => true,
-      heartbeat: {
-        timeout: 50000,
-      },
-    },
-  );
-
-  useEffect(() => {
-    const day = new Date(`December 17, 1995 03:24:00`);
-    if (lastJsonMessage) {
-      const lastMessage = {
-        price: lastJsonMessage.p,
-        name: lastJsonMessage.s,
-        date: day,
-      };
-      setCrypto((prevState) => CutArray([...prevState, lastMessage]));
-      setNewCrypto(lastMessage);
-    }
-  }, [lastJsonMessage]);
+  const { crypto, newCrypto } = useRealtimeInfo();
   return (
     <>
-      {crypto.length < 1 ? (
+      {crypto.length < minCryptoElement ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
           <p>Loading...</p>
         </div>
@@ -46,7 +21,9 @@ function App() {
             }}
           >
             <p>Currency: {newCrypto.name}</p>
-            <p>Last price: {Number.parseFloat(newCrypto.price)}</p>
+            <p>
+              Last price: {Number(newCrypto.price).toFixed(elementAfterDot)}
+            </p>
           </div>
           <ChartJsLayout newCrypto={newCrypto} crypto={crypto} />
         </>

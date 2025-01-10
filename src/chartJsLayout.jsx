@@ -11,6 +11,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { formatDate, formatTime } from "./helpers/timeToUtc.js";
+import { elementAfterDot } from "./constants/price.js";
 
 ChartJS.register(
   CategoryScale,
@@ -51,7 +52,7 @@ export function ChartJsLayout({ newCrypto, crypto }) {
     datasets: [
       {
         label: `${newCrypto.name}`,
-        data: crypto.map((item) => Number.parseFloat(item.price)),
+        data: crypto.map((item) => Number(item.price).toFixed(elementAfterDot)),
         borderColor: "rgb(255, 99, 132)",
         backgroundColor: "rgba(255, 99, 132, 0.5)",
         yAxisID: "y",
